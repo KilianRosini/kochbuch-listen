@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Einkaufsliste – Risotto</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;padding:20px;max-width:680px}
+    h1{font-size:22px;margin:0 0 8px}
+    p{margin:0 0 16px;opacity:.75}
+    .item{display:flex;align-items:center;gap:12px;padding:12px 10px;border:1px solid #eee;border-radius:14px;margin:10px 0}
+    input{width:22px;height:22px}
+    .done{opacity:.45;text-decoration:line-through}
+    .bar{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+    button{padding:10px 12px;border-radius:12px;border:1px solid #ddd;background:#fff;cursor:pointer}
+  </style>
+</head>
+<body>
+  <h1>Einkaufsliste – Risotto</h1>
+  <p>Tippe zum Abhaken. Wird auf deinem Gerät gespeichert.</p>
+
+  <div class="item"><input type="checkbox" data-k="parmesan"><span>Parmesan</span></div>
+  <div class="item"><input type="checkbox" data-k="risottoreis"><span>Risottoreis</span></div>
+  <div class="item"><input type="checkbox" data-k="zitrone"><span>Zitrone</span></div>
+  <div class="item"><input type="checkbox" data-k="butter"><span>Butter</span></div>
+  <div class="item"><input type="checkbox" data-k="weisswein"><span>Weißwein</span></div>
+
+  <div class="bar">
+    <button id="reset">Alles zurücksetzen</button>
+  </div>
+
+  <script>
+    const pageKey = location.pathname; // pro Rezept-Seite getrennt speichern
+    const storeKey = "checklist:" + pageKey;
+
+    const saved = JSON.parse(localStorage.getItem(storeKey) || "{}");
+
+    function applyState() {
+      document.querySelectorAll('input[type="checkbox"][data-k]').forEach(cb => {
+        cb.checked = !!saved[cb.dataset.k];
+        cb.parentElement.querySelector("span").classList.toggle("done", cb.checked);
+      });
+    }
+
+    document.addEventListener("change", (e) => {
+      const cb = e.target;
+      if (cb.matches('input[type="checkbox"][data-k]')) {
+        saved[cb.dataset.k] = cb.checked;
+        localStorage.setItem(storeKey, JSON.stringify(saved));
+        cb.parentElement.querySelector("span").classList.toggle("done", cb.checked);
+      }
+    });
+
+    document.getElementById("reset").addEventListener("click", () => {
+      localStorage.removeItem(storeKey);
+      Object.keys(saved).forEach(k => delete saved[k]);
+      applyState();
+    });
+
+    applyState();
+  </script>
+</body>
+</html>
